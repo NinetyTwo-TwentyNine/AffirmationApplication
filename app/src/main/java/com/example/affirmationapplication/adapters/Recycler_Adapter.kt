@@ -11,6 +11,7 @@ import com.example.affirmationapplication.R
 import com.example.affirmationapplication.data.Recycler_ViewModel
 
 class Recycler_Adapter(private val dataList: List<Recycler_ViewModel>): RecyclerView.Adapter<Recycler_Adapter.ViewHolder>() {
+    var function_OnClick: ((Int, ViewHolder) -> Unit)? = null
 
     class ViewHolder(ItemView: View) : RecyclerView.ViewHolder(ItemView) {
         val imageView = ItemView.findViewById<ImageView>(R.id.imageView)
@@ -25,6 +26,10 @@ class Recycler_Adapter(private val dataList: List<Recycler_ViewModel>): Recycler
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         holder.imageView.setImageResource(dataList[position].image)
         holder.textView.setText(dataList[position].text)
+
+        holder.imageView.setOnClickListener{
+            function_OnClick?.invoke(position, holder)
+        }
     }
 
     override fun getItemCount(): Int {

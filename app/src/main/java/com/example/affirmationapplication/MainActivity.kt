@@ -1,5 +1,6 @@
 package com.example.affirmationapplication
 
+import android.graphics.Color
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
@@ -31,9 +32,35 @@ class MainActivity: AppCompatActivity() {
         textData.add("I will be present in all the moments that this day brings.")
 
         val dataList = ArrayList<Recycler_ViewModel>(10)
-        for (i in 1..10) {
-            dataList.add(Recycler_ViewModel(getResources().getIdentifier("image$i", "drawable", getPackageName()), textData[i-1]))
+        for (i in 0 until 10) {
+            dataList.add(Recycler_ViewModel(getResources().getIdentifier("image${i+1}", "drawable", getPackageName()), textData[i]))
         }
-        binding.recyclerView.adapter = Recycler_Adapter(dataList)
+        dataList[9].function_OnClick = {position, holder->
+            holder.textView.setTextColor(holder.textView.currentTextColor + arrayListOf(-100, -50, 50, 100).shuffled().first())
+        }
+
+        var dataAdapter = Recycler_Adapter(dataList)
+
+        var recycler_FunctionTemplate: ((Int, Recycler_Adapter.ViewHolder) -> Unit)? = null
+        val function_OnClick_RecyclerDefault: ((Int, Recycler_Adapter.ViewHolder) -> Unit) = {position, holder ->
+            var viewCopy = dataList[position]
+            dataList.removeAt(position)
+            dataList.shuffle()
+            dataList.add(position, viewCopy)
+            dataAdapter = Recycler_Adapter(dataList)
+            dataAdapter.function_OnClick = recycler_FunctionTemplate
+            binding.recyclerView.adapter = dataAdapter
+        }
+
+        recycler_FunctionTemplate = {position, holder ->
+            if (dataList[position].function_OnClick != null) {
+                dataList[position].function_OnClick!!(position, holder)
+            } else {
+                function_OnClick_RecyclerDefault(position, holder)
+            }
+        }
+
+        dataAdapter.function_OnClick = recycler_FunctionTemplate
+        binding.recyclerView.adapter = dataAdapter
     }
 }
